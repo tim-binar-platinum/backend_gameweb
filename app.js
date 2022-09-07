@@ -11,6 +11,13 @@ const https = require("https");
 const path = require("path");
 const cors = require("cors");
 
+// ssl 
+const options = {
+    key: fs.readFileSync("./ssl/private.key"),
+    cert: fs.readFileSync('./ssl/certificate.crt'),
+};
+
+
 app.use(cors());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
