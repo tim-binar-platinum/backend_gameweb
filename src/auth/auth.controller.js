@@ -13,12 +13,16 @@ const authController = async(req, res) => {
     } = req.body;
     const userData = await authService(email);
     if (!userData) {
-        return res.status(404).send("data tidak ada");
+        return res.status(404).send({
+            msg: "data tidak ada"
+        });
     }
 
     const isActive = userData.is_active;
     if (isActive == "nonactive") {
-        return res.status(400).send("konfirmasi email dahulu");
+        return res.status(400).send({
+            msg: "konfirmasi email dahulu"
+        });
     }
 
     const isPassword = await bcrypt.compare(password, userData.password);
@@ -36,7 +40,9 @@ const authController = async(req, res) => {
             accessToken: token
         });
     } else {
-        return res.status(403).send("password salah");
+        return res.status(403).send({
+            msg: "password salah"
+        });
     }
 
 }

@@ -21,20 +21,57 @@ const getUserSingleService = async(user_id) => {
     });
 }
 const updateService = async(id, data_user) => {
-    return await repo.updateRepo(id, data_user);
+    const password = data_user.password;
+    const hashPassword = await bcrypt.hash(password, 10);
+    return await repo.updateRepo({
+        id,
+        data_user,
+        hashPassword
+    });
 }
 const registerConfirmService = async(token) => {
     const data_user = await repo.getUserSingleRepo({
         token
     });
-    const confirm = "active";
     const id = data_user.id;
-    return await repo.updateRepo(id, data_user, confirm);
+    return await repo.updateRepo({
+        id,
+        data_user
+    });
+}
+const forgetPasswordService = async({
+    id,
+    forgetToken
+}) => {
+    const password = forgetToken;
+    const newPassword = await bcrypt.hash(password, 10);
+    return await repo.updateRepo({
+        id,
+        newPassword
+    });
+}
+
+const updateScoreService = async({
+    id,
+    score
+}) => {
+    user_id = id;
+    const data_user = await repo.getUserSingleRepo({
+        user_id
+    });
+
+    const newScore = data_user.total_score + score;
+    return await repo.updateRepo({
+        id,
+        newScore
+    });
 }
 const service = {
     registerService,
     getUserSingleService,
     updateService,
-    registerConfirmService
+    registerConfirmService,
+    forgetPasswordService,
+    updateScoreService
 }
 module.exports = service;
