@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const sendMail = (email) => {
+const sendMail = (email, subject, message) => {
     const transport = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -13,8 +13,8 @@ const sendMail = (email) => {
     mailerOptions = {
         from: sender,
         to: email,
-        subject: "testing",
-        html: "<p> ytetetetet <a href=https://yyyy.com>ayo</a></p>",
+        subject: subject,
+        html: message,
     };
 
     transport.sendMail(mailerOptions, (error, response) => {

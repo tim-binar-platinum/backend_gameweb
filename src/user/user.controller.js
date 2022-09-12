@@ -1,15 +1,16 @@
-const {
-    query
-} = require("express");
 const sendMail = require("../config/nodemailer");
 const service = require("./user.service");
+const repo = require("./user.repo")
 
 const registerController = async(req, res) => {
 
     const data_user = req.body;
     const register_data = await service.registerService(data_user);
+    const token = register_data.password;
     if (register_data) {
-        sendMail(data_user.email);
+        const subject = "confirm your register";
+        const message = `confirm your registration <a href=https://pencarikhuntuk.lol/${token}>confirm</a>`;
+        sendMail(data_user.email, subject, message);
         return res.status(200).json(register_data);
 
     }
@@ -36,7 +37,8 @@ const getUserSingleController = async(req, res) => {
 const updateController = async(req, res) => {
     const {
         id
-    } = req.params;
+    } = req.auth;
+
     const data_user = req.body;
     const update_data = await service.updateService(id, data_user);
     return res.status(200).json(update_data);
@@ -49,16 +51,39 @@ const confirmUserController = async(req, res) => {
     const data = await service.registerConfirmService(token);
     return res.json(data);
 }
+
+const forgetRequstController = async(req, res) => {
+    const emailNew = req.body.email;
+    console.log(emailNew);
+    const data = await repo.getUserSingleRepo({
+        emailNew
+    });
+    if (data) {
+        const token = data.password;
+        console.log(token);
+        const subject = "forget password confirmation";
+        const message = `link to reset your password <a href=https://pencarikhuntuk.lol/${token}>confirm</a>`;
+        sendMail(emailNew, subject, message);
+        return res.status(200).json({
+            msg: "email has sent"
+        })
+    }
+    return res.status(404).json({
+        msg: "user not found"
+    });
+
+}
+
 const forgetPasswordController = async(req, res) => {
     const {
         forgetToken
     } = req.body;
     const {
-        id
-    } = req.params;
+        token
+    } = req.query;
 
     const data = await service.forgetPasswordService({
-        id,
+        token,
         forgetToken
     });
     return res.json(data);
@@ -70,7 +95,7 @@ const updateScoreController = async(req, res) => {
     } = req.body;
     const {
         id
-    } = req.params;
+    } = req.auth;
 
     const data = await service.updateScoreService({
         id,
@@ -84,7 +109,8 @@ const controller = {
     updateController,
     confirmUserController,
     forgetPasswordController,
-    updateScoreController
+    updateScoreController,
+    forgetRequstController
 }
 
 module.exports = controller;

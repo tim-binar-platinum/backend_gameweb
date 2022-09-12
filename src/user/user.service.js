@@ -33,17 +33,27 @@ const registerConfirmService = async(token) => {
     const data_user = await repo.getUserSingleRepo({
         token
     });
-    const id = data_user.id;
-    return await repo.updateRepo({
-        id,
-        data_user
-    });
+    if (data_user) {
+        const id = data_user.id;
+        return await repo.updateRepo({
+            id,
+            data_user
+        });
+    }
+    return {
+        msg: "token salah"
+    };
 }
 const forgetPasswordService = async({
-    id,
+    token,
     forgetToken
 }) => {
+    const data = await repo.getUserSingleRepo({
+        token
+    });
+
     const password = forgetToken;
+    const id = data.id;
     const newPassword = await bcrypt.hash(password, 10);
     return await repo.updateRepo({
         id,
